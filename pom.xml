@@ -9,8 +9,6 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
     <build>
-        <finalName>../Bot</finalName>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -61,7 +59,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.8</version>
+            <version>1.2.9</version>
         </dependency>
 
         <dependency>
