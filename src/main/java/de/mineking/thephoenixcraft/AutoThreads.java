@@ -14,49 +14,45 @@ public class AutoThreads extends ListenerAdapter {
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
-		if(event.getChannel().getIdLong() != Main.config.picvid) {
+		if (event.getChannel().getIdLong() != Main.config.picvid) {
 			return;
 		}
 
-		if(!(event.getChannel() instanceof IThreadContainer channel)) {
-			return;
-		}
+		ThreadChannel channel = (ThreadChannel) event.getChannel(); // Cast to ThreadChannel
 
-		if(event.getMessage().getAttachments().isEmpty() && !URL_PATTERN.asPredicate().test(event.getMessage().getContentRaw())) {
+		if (event.getMessage().getAttachments().isEmpty() && !URL_PATTERN.asPredicate().test(event.getMessage().getContentRaw())) {
 			event.getMessage().delete().queue();
 			return;
 		}
 
-		channel.createThreadChannel(StringUtils.abbreviate(getThreadName(event.getMessage()), ThreadChannel.MAX_NAME_LENGTH), event.getMessageIdLong()).queue();
+		String threadName = getThreadName(event.getMessage());
+
+		// Remove emoji ID from threadName
+		threadName = threadName.replaceAll("<a:\\w+:(\\d+)>", ""); // For animated emojis
+		threadName = threadName.replaceAll("<:\\w+:(\\d+)>", ""); // For regular emojis
+
+		// Trim and abbreviate threadName
+		threadName = StringUtils.abbreviate(threadName, ThreadChannel.MAX_NAME_LENGTH);
+
+		channel.createThreadChannel(threadName, event.getMessageIdLong()).queue();
 	}
 
 	public String getThreadName(Message message) {
 		var content = message.getContentRaw().replaceAll(URL_PATTERN.pattern(), "").trim();
-		String threadName = "";
 
 		if (content.isEmpty()) {
 			if (!message.getEmbeds().isEmpty()) {
 				var title = message.getEmbeds().get(0).getTitle();
+
 				if (title != null) {
-					threadName = title;
+					return title;
 				}
 			}
-			if (!hasCustomEmoji(threadName)) {
-				return threadName;
-			}
-		} else {
-			threadName = content;
+
+			return message.getAuthor().getGlobalName();
 		}
 
-		threadName = threadName.replaceAll("(<:[^:]+:)(\\d+)(>)", "$1$3");
-
-		return StringUtils.abbreviate(threadName, ThreadChannel.MAX_NAME_LENGTH);
+		return content;
 	}
-
-
-	private boolean hasCustomEmoji(String input) {
-
-		return input.matches(".*<:[^:]+:\\d+>.*");
-	}
-
 }
+
