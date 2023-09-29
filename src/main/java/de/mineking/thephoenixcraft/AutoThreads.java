@@ -27,11 +27,11 @@ public class AutoThreads extends ListenerAdapter {
 
 		String threadName = getThreadName(event.getMessage());
 
-		// Remove emoji ID from threadName
+
 		threadName = threadName.replaceAll("<a:\\w+:(\\d+)>", ""); // For animated emojis
 		threadName = threadName.replaceAll("<:\\w+:(\\d+)>", ""); // For regular emojis
 
-		// Trim and abbreviate threadName
+
 		threadName = StringUtils.abbreviate(threadName, ThreadChannel.MAX_NAME_LENGTH);
 
 		channel.createThreadChannel(threadName, event.getMessageIdLong()).queue();
