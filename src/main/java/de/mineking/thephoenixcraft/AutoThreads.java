@@ -32,19 +32,31 @@ public class AutoThreads extends ListenerAdapter {
 
 	public String getThreadName(Message message) {
 		var content = message.getContentRaw().replaceAll(URL_PATTERN.pattern(), "").trim();
+		String threadName = "";
 
-		if(content.isEmpty()) {
-			if(!message.getEmbeds().isEmpty()) {
+		if (content.isEmpty()) {
+			if (!message.getEmbeds().isEmpty()) {
 				var title = message.getEmbeds().get(0).getTitle();
-
-				if(title != null) {
-					return title;
+				if (title != null) {
+					threadName = title;
 				}
 			}
-
-			return message.getAuthor().getGlobalName();
+			if (!hasCustomEmoji(threadName)) {
+				return threadName;
+			}
+		} else {
+			threadName = content;
 		}
 
-		return content;
+		threadName = threadName.replaceAll("(<:[^:]+:)(\\d+)(>)", "$1$3");
+
+		return StringUtils.abbreviate(threadName, ThreadChannel.MAX_NAME_LENGTH);
 	}
+
+
+	private boolean hasCustomEmoji(String input) {
+
+		return input.matches(".*<:[^:]+:\\d+>.*");
+	}
+
 }
