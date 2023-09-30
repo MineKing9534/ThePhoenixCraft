@@ -18,26 +18,26 @@ public class AutoThreads extends ListenerAdapter {
 			return;
 		}
 
-		ThreadChannel channel = (ThreadChannel) event.getChannel(); // Cast to ThreadChannel
+		if(!(event.getChannel() instanceof IThreadContainer channel)) {
+			return;
+		}
 
 		if (event.getMessage().getAttachments().isEmpty() && !URL_PATTERN.asPredicate().test(event.getMessage().getContentRaw())) {
 			event.getMessage().delete().queue();
 			return;
 		}
 
-		String threadName = getThreadName(event.getMessage());
-
-
-		threadName = threadName.replaceAll("<a:\\w+:(\\d+)>", ""); // For animated emojis
-		threadName = threadName.replaceAll("<:\\w+:(\\d+)>", ""); // For regular emojis
-
-
-		threadName = StringUtils.abbreviate(threadName, ThreadChannel.MAX_NAME_LENGTH);
-
-		channel.createThreadChannel(threadName, event.getMessageIdLong()).queue();
+		channel.createThreadChannel(getThreadName(event.getMessage()), event.getMessageIdLong()).queue();
 	}
 
 	public String getThreadName(Message message) {
+		return StringUtils.abbreviate(
+				getBaseThreadName(message).replaceAll("<a?:\\w+:(\\d+)>", ""),
+				ThreadChannel.MAX_NAME_LENGTH
+		);
+	}
+
+	public String getBaseThreadName(Message message) {
 		var content = message.getContentRaw().replaceAll(URL_PATTERN.pattern(), "").trim();
 
 		if (content.isEmpty()) {
