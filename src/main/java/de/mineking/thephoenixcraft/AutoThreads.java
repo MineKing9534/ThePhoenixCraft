@@ -14,15 +14,10 @@ public class AutoThreads extends ListenerAdapter {
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
-		if (event.getChannel().getIdLong() != Main.config.picvid) {
-			return;
-		}
+		if(event.getChannel().getIdLong() != Main.config.picvid) return;
+		if(!(event.getChannel() instanceof IThreadContainer channel)) return;
 
-		if(!(event.getChannel() instanceof IThreadContainer channel)) {
-			return;
-		}
-
-		if (event.getMessage().getAttachments().isEmpty() && !URL_PATTERN.asPredicate().test(event.getMessage().getContentRaw())) {
+		if(event.getMessage().getAttachments().isEmpty() && !URL_PATTERN.asPredicate().test(event.getMessage().getContentRaw())) {
 			event.getMessage().delete().queue();
 			return;
 		}
@@ -40,13 +35,10 @@ public class AutoThreads extends ListenerAdapter {
 	public String getBaseThreadName(Message message) {
 		var content = message.getContentRaw().replaceAll(URL_PATTERN.pattern(), "").trim();
 
-		if (content.isEmpty()) {
-			if (!message.getEmbeds().isEmpty()) {
+		if(content.isEmpty()) {
+			if(!message.getEmbeds().isEmpty()) {
 				var title = message.getEmbeds().get(0).getTitle();
-
-				if (title != null) {
-					return title;
-				}
+				if (title != null) return title;
 			}
 
 			return message.getAuthor().getGlobalName();
