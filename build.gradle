@@ -24,7 +24,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'de.mineking.minekingbot.main.Main'
+    mainClass = 'de.mineking.thephoenixcraft.Main'
 }
 
 shadowJar {
