@@ -22,18 +22,20 @@ public class AutoThreads extends ListenerAdapter {
 			return;
 		}
 
-		channel.createThreadChannel(getThreadName(event.getMessage()), event.getMessageIdLong()).queue();
+		channel.createThreadChannel(
+				StringUtils.abbreviate(
+						getThreadName(event.getMessage()),
+						ThreadChannel.MAX_NAME_LENGTH
+				),
+				event.getMessageIdLong()
+		).queue();
 	}
 
 	public String getThreadName(Message message) {
-		return StringUtils.abbreviate(
-				getBaseThreadName(message).replaceAll("<a?:\\w+:(\\d+)>", ""),
-				ThreadChannel.MAX_NAME_LENGTH
-		);
-	}
-
-	public String getBaseThreadName(Message message) {
-		var content = message.getContentRaw().replaceAll(URL_PATTERN.pattern(), "").trim();
+		var content = message.getContentRaw()
+				.replaceAll(URL_PATTERN.pattern(), "")
+				.replaceAll("<a?:\\w+:(\\d+)>", "")
+				.trim();
 
 		if(content.isEmpty()) {
 			if(!message.getEmbeds().isEmpty()) {
