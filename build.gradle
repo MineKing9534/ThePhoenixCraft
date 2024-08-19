@@ -28,7 +28,7 @@ application {
 }
 
 shadowJar {
-    archiveFileName = "$rootDir/Bot.jar"
+    archiveFileName = "$rootDir/run/Bot.jar"
 }
 
 test {
